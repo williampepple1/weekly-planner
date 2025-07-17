@@ -18,9 +18,10 @@ const COLLECTION_NAME = 'tasks';
 
 export const taskService = {
   // Add a new task
-  async addTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+  async addTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'userId'>, userId: string): Promise<string> {
     const docRef = await addDoc(collection(db, COLLECTION_NAME), {
       ...task,
+      userId,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -28,12 +29,13 @@ export const taskService = {
   },
 
   // Get all tasks for a specific week
-  async getTasksForWeek(weekStart: Date): Promise<Task[]> {
+  async getTasksForWeek(weekStart: Date, userId: string): Promise<Task[]> {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
 
     const q = query(
       collection(db, COLLECTION_NAME),
+      where('userId', '==', userId),
       where('createdAt', '>=', weekStart),
       where('createdAt', '<=', weekEnd),
       orderBy('createdAt', 'desc')

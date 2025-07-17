@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { format, startOfWeek, addDays } from 'date-fns';
-import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, LogOut, User } from 'lucide-react';
 import type { Task, WeekDay } from './types';
 import { taskService } from './services/taskService';
+import { authService } from './services/authService';
+import type { User as FirebaseUser } from 'firebase/auth';
 import TaskForm from './components/TaskForm';
 import WeekView from './components/WeekView';
+import LoginPage from './components/LoginPage';
 
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -13,6 +16,8 @@ const App: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
   // Generate week days
   const generateWeekDays = (weekStart: Date): WeekDay[] => {
@@ -28,13 +33,29 @@ const App: React.FC = () => {
 
   const weekDays = generateWeekDays(startOfWeek(currentWeek, { weekStartsOn: 1 }));
 
+  // Handle authentication state changes
+  useEffect(() => {
+    const unsubscribe = authService.onAuthStateChanged((user) => {
+      setUser(user);
+      setAuthLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   // Load tasks for current week
   useEffect(() => {
     const loadTasks = async () => {
+      if (!user) {
+        setTasks([]);
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
-        const weekTasks = await taskService.getTasksForWeek(weekStart);
+        const weekTasks = await taskService.getTasksForWeek(weekStart, user.uid);
         setTasks(weekTasks);
       } catch (error) {
         console.error('Error loading tasks:', error);
@@ -44,7 +65,7 @@ const App: React.FC = () => {
     };
 
     loadTasks();
-  }, [currentWeek]);
+  }, [currentWeek, user]);
 
   // Handle drag and drop
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -129,7 +150,9 @@ const App: React.FC = () => {
   };
 
   // Handle form submission
-  const handleSubmitTask = async (taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const handleSubmitTask = async (taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => {
+    if (!user) return;
+
     try {
       if (editingTask) {
         // Update existing task
@@ -143,10 +166,11 @@ const App: React.FC = () => {
         );
       } else {
         // Add new task
-        const taskId = await taskService.addTask(taskData);
+        const taskId = await taskService.addTask(taskData, user.uid);
         const newTask: Task = {
           id: taskId,
           ...taskData,
+          userId: user.uid,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
@@ -191,19 +215,75 @@ const App: React.FC = () => {
     });
   };
 
+  // Handle sign out
+  const handleSignOut = async () => {
+    try {
+      await authService.signOut();
+      setTasks([]);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   // Close form and reset editing state
   const closeForm = () => {
     setIsFormOpen(false);
     setEditingTask(null);
   };
 
+  // Show loading screen while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login page if not authenticated
+  if (!user) {
+    return <LoginPage onLogin={() => {}} />;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
         {/* Header */}
         <div className="mb-4 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Weekly Planner</h1>
-          <p className="text-sm md:text-base text-gray-600">Organize your tasks for the week</p>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Weekly Planner</h1>
+              <p className="text-sm md:text-base text-gray-600">Organize your tasks for the week</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                {user.photoURL ? (
+                  <img
+                    src={user.photoURL}
+                    alt={user.displayName || user.email || 'User'}
+                    className="w-8 h-8 rounded-full border-2 border-gray-200"
+                    title={user.displayName || user.email || 'User'}
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white text-sm font-medium">
+                    <User size={16} />
+                  </div>
+                )}
+                <span className="hidden sm:inline">{user.displayName || user.email}</span>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                title="Sign out"
+              >
+                <LogOut size={16} />
+                <span className="hidden sm:inline">Sign out</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Week Navigation */}

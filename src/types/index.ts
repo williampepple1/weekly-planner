@@ -5,6 +5,7 @@ export interface Task {
   day: string; // 'monday', 'tuesday', etc.
   status: 'todo' | 'in-progress' | 'completed';
   priority: 'low' | 'medium' | 'high';
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
 }

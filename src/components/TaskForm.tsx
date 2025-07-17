@@ -5,7 +5,7 @@ import { X } from 'lucide-react';
 interface TaskFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onSubmit: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => void;
   task?: Task | null;
 }
 
