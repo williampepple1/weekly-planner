@@ -55,7 +55,9 @@ const App: React.FC = () => {
       try {
         setLoading(true);
         const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
+        console.log('Loading tasks for user:', user.uid, 'week start:', weekStart);
         const weekTasks = await taskService.getTasksForWeek(weekStart, user.uid);
+        console.log('Loaded tasks:', weekTasks.length, 'tasks');
         setTasks(weekTasks);
       } catch (error) {
         console.error('Error loading tasks:', error);

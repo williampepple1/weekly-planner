@@ -7,7 +7,6 @@ import {
   getDocs, 
   query, 
   where, 
-  orderBy,
   serverTimestamp
 } from 'firebase/firestore';
 import type { DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
@@ -28,26 +27,64 @@ export const taskService = {
     return docRef.id;
   },
 
-  // Get all tasks for a specific week
-  async getTasksForWeek(weekStart: Date, userId: string): Promise<Task[]> {
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekEnd.getDate() + 6);
+  // Get all tasks for a user
+  async getTasksForWeek(_weekStart: Date, userId: string): Promise<Task[]> {
+    // Get all tasks for the user - the UI will filter by current week view
+    // This ensures tasks created on any device will show up correctly
+    console.log('Fetching tasks for userId:', userId);
+    
+    try {
+      const q = query(
+        collection(db, COLLECTION_NAME),
+        where('userId', '==', userId)
+      );
 
-    const q = query(
-      collection(db, COLLECTION_NAME),
-      where('userId', '==', userId),
-      where('createdAt', '>=', weekStart),
-      where('createdAt', '<=', weekEnd),
-      orderBy('createdAt', 'desc')
-    );
-
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate() || new Date(),
-      updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-    })) as Task[];
+      const querySnapshot = await getDocs(q);
+      console.log('Raw Firestore response:', querySnapshot.docs.length, 'documents');
+      
+      const tasks = querySnapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => {
+        const data = doc.data();
+        console.log('Task document:', doc.id, data);
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date(),
+        };
+      }) as Task[];
+      
+      console.log('Processed tasks:', tasks.length, 'tasks');
+      return tasks;
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      
+      // Fallback: try to get all tasks without userId filter
+      console.log('Trying fallback query without userId filter...');
+      try {
+        const fallbackQuery = query(collection(db, COLLECTION_NAME));
+        const fallbackSnapshot = await getDocs(fallbackQuery);
+        console.log('Fallback query returned:', fallbackSnapshot.docs.length, 'documents');
+        
+        const fallbackTasks = fallbackSnapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => {
+          const data = doc.data();
+          console.log('Fallback task document:', doc.id, data);
+          return {
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate() || new Date(),
+            updatedAt: data.updatedAt?.toDate() || new Date(),
+          };
+        }) as Task[];
+        
+        // Filter by userId on client side
+        const userTasks = fallbackTasks.filter(task => task.userId === userId);
+        console.log('Client-side filtered tasks:', userTasks.length, 'tasks');
+        return userTasks;
+      } catch (fallbackError) {
+        console.error('Fallback query also failed:', fallbackError);
+        return [];
+      }
+    }
   },
 
   // Update a task
