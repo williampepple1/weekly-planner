@@ -41,7 +41,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         {/* Login Card */}
         <div className="bg-white rounded-lg shadow-sm border p-6 md:p-8">
           <div className="text-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Welcome Back</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Welcome</h2>
             <p className="text-gray-600">Sign in to access your weekly planner</p>
           </div>
 
