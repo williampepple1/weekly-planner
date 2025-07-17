@@ -49,10 +49,10 @@ const WeekView: React.FC<WeekViewProps> = ({
     
     return (
       <div>
-        <h4 className="text-sm font-medium text-gray-700 mb-2">{title}</h4>
+        <h4 className="text-xs md:text-sm font-medium text-gray-700 mb-2">{title}</h4>
         <div 
           ref={setNodeRef}
-          className={`min-h-[100px] p-2 rounded-md transition-colors ${
+          className={`min-h-[80px] md:min-h-[100px] p-2 rounded-md transition-colors ${
             isOver ? 'bg-blue-100 border-2 border-blue-300' : 'bg-gray-50 border-2 border-dashed border-gray-300'
           }`}
         >
@@ -105,18 +105,18 @@ const WeekView: React.FC<WeekViewProps> = ({
       onDragCancel={handleDragCancel}
       modifiers={[restrictToWindowEdges]}
     >
-      <div className="grid grid-cols-7 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4">
         {weekDays.map((day) => {
           const dayTasks = getDayTasksByStatus(day.value);
           
           return (
             <div key={day.value} className="bg-white rounded-lg shadow-sm border">
-              <div className="p-4 border-b bg-gray-50">
-                <h3 className="font-semibold text-gray-900">{day.name}</h3>
-                <p className="text-sm text-gray-500">{format(day.date, 'MMM d')}</p>
+              <div className="p-3 md:p-4 border-b bg-gray-50">
+                <h3 className="font-semibold text-gray-900 text-sm md:text-base">{day.name}</h3>
+                <p className="text-xs md:text-sm text-gray-500">{format(day.date, 'MMM d')}</p>
               </div>
               
-              <div className="p-4 space-y-4">
+              <div className="p-3 md:p-4 space-y-3 md:space-y-4">
                 <DroppableZone
                   id={`${day.value}-todo`}
                   title="To Do"

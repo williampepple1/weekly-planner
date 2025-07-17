@@ -199,23 +199,23 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Weekly Planner</h1>
-          <p className="text-gray-600">Organize your tasks for the week</p>
+        <div className="mb-4 md:mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Weekly Planner</h1>
+          <p className="text-sm md:text-base text-gray-600">Organize your tasks for the week</p>
         </div>
 
         {/* Week Navigation */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 md:mb-6 gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <button
               onClick={goToPreviousWeek}
               className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
             >
               <ChevronLeft size={20} />
             </button>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-900 text-center">
               {format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'MMM d')} - {format(addDays(startOfWeek(currentWeek, { weekStartsOn: 1 }), 6), 'MMM d, yyyy')}
             </h2>
             <button
@@ -228,7 +228,7 @@ const App: React.FC = () => {
           
           <button
             onClick={() => setIsFormOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors"
+            className="flex items-center gap-2 px-3 md:px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm md:text-base"
           >
             <Plus size={16} />
             Add Task

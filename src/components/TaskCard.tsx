@@ -42,15 +42,15 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
       style={style}
       {...attributes}
       {...listeners}
-      className={`p-4 mb-3 rounded-lg border-l-4 shadow-sm transition-all duration-200 cursor-grab active:cursor-grabbing ${
+      className={`p-3 md:p-4 mb-2 md:mb-3 rounded-lg border-l-4 shadow-sm transition-all duration-200 cursor-grab active:cursor-grabbing ${
         getPriorityColor(task.priority)
       } ${isDragging ? 'shadow-lg transform rotate-2 opacity-50' : ''}`}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-900 mb-1">{task.title}</h3>
+          <h3 className="font-semibold text-gray-900 mb-1 text-sm md:text-base">{task.title}</h3>
           {task.description && (
-            <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+            <p className="text-xs md:text-sm text-gray-600 mb-2">{task.description}</p>
           )}
 
         </div>
