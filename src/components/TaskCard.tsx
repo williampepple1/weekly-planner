@@ -48,9 +48,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
     >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 mb-1 text-sm md:text-base break-words leading-tight">{task.title}</h3>
+          <h3 className="font-semibold text-gray-900 mb-1 text-sm md:text-base whitespace-normal leading-tight">{task.title}</h3>
           {task.description && (
-            <p className="text-xs md:text-sm text-gray-600 mb-2 break-words leading-relaxed">{task.description}</p>
+            <p className="text-xs md:text-sm text-gray-600 mb-2 whitespace-normal leading-relaxed">{task.description}</p>
           )}
         </div>
         <div className="flex items-center gap-1 ml-2">
