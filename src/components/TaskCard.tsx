@@ -47,12 +47,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
       } ${isDragging ? 'shadow-lg transform rotate-2 opacity-50' : ''}`}
     >
       <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <h3 className="font-semibold text-gray-900 mb-1 text-sm md:text-base">{task.title}</h3>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-gray-900 mb-1 text-sm md:text-base break-words leading-tight">{task.title}</h3>
           {task.description && (
-            <p className="text-xs md:text-sm text-gray-600 mb-2">{task.description}</p>
+            <p className="text-xs md:text-sm text-gray-600 mb-2 break-words leading-relaxed">{task.description}</p>
           )}
-
         </div>
         <div className="flex items-center gap-1 ml-2">
           <button
