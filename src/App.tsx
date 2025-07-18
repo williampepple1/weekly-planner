@@ -152,7 +152,7 @@ const App: React.FC = () => {
   };
 
   // Handle form submission
-  const handleSubmitTask = async (taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'userId'>) => {
+  const handleSubmitTask = async (taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'userId' | 'weekId'>) => {
     if (!user) return;
 
     try {
@@ -168,11 +168,13 @@ const App: React.FC = () => {
         );
       } else {
         // Add new task
-        const taskId = await taskService.addTask(taskData, user.uid);
+        const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
+        const taskId = await taskService.addTask(taskData, user.uid, weekStart);
         const newTask: Task = {
           id: taskId,
           ...taskData,
           userId: user.uid,
+          weekId: weekStart.toISOString().split('T')[0],
           createdAt: new Date(),
           updatedAt: new Date(),
         };

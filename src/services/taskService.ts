@@ -17,26 +17,29 @@ const COLLECTION_NAME = 'tasks';
 
 export const taskService = {
   // Add a new task
-  async addTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'userId'>, userId: string): Promise<string> {
+  async addTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'userId' | 'weekId'>, userId: string, weekStart: Date): Promise<string> {
+    const weekId = weekStart.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    
     const docRef = await addDoc(collection(db, COLLECTION_NAME), {
       ...task,
       userId,
+      weekId,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
     return docRef.id;
   },
 
-  // Get all tasks for a user
-  async getTasksForWeek(_weekStart: Date, userId: string): Promise<Task[]> {
-    // Get all tasks for the user - the UI will filter by current week view
-    // This ensures tasks created on any device will show up correctly
-    console.log('Fetching tasks for userId:', userId);
+  // Get all tasks for a user for a specific week
+  async getTasksForWeek(weekStart: Date, userId: string): Promise<Task[]> {
+    const weekId = weekStart.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    console.log('Fetching tasks for userId:', userId, 'weekId:', weekId);
     
     try {
       const q = query(
         collection(db, COLLECTION_NAME),
-        where('userId', '==', userId)
+        where('userId', '==', userId),
+        where('weekId', '==', weekId)
       );
 
       const querySnapshot = await getDocs(q);
@@ -58,8 +61,8 @@ export const taskService = {
     } catch (error) {
       console.error('Error fetching tasks:', error);
       
-      // Fallback: try to get all tasks without userId filter
-      console.log('Trying fallback query without userId filter...');
+      // Fallback: try to get all tasks without filters and filter on client side
+      console.log('Trying fallback query without filters...');
       try {
         const fallbackQuery = query(collection(db, COLLECTION_NAME));
         const fallbackSnapshot = await getDocs(fallbackQuery);
@@ -76,8 +79,11 @@ export const taskService = {
           };
         }) as Task[];
         
-        // Filter by userId on client side
-        const userTasks = fallbackTasks.filter(task => task.userId === userId);
+        // Filter by userId and weekId on client side
+        const userTasks = fallbackTasks.filter(task => 
+          task.userId === userId && 
+          (task.weekId === weekId || !task.weekId) // Include tasks without weekId for backward compatibility
+        );
         console.log('Client-side filtered tasks:', userTasks.length, 'tasks');
         return userTasks;
       } catch (fallbackError) {

@@ -6,6 +6,7 @@ export interface Task {
   status: 'todo' | 'in-progress' | 'completed';
   priority: 'low' | 'medium' | 'high';
   userId: string;
+  weekId: string; // ISO date string of the week start (e.g., '2024-01-01')
   createdAt: Date;
   updatedAt: Date;
 }
