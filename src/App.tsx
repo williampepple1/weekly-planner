@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { format, startOfWeek, addDays } from 'date-fns';
-import { Plus, ChevronLeft, ChevronRight, LogOut, User } from 'lucide-react';
+import { Plus, ChevronLeft, ChevronRight, LogOut, User, Calendar } from 'lucide-react';
 import type { Task, WeekDay } from './types';
 import { taskService } from './services/taskService';
 import { authService } from './services/authService';
@@ -10,20 +10,30 @@ import TaskForm from './components/TaskForm';
 import WeekView from './components/WeekView';
 import LoginPage from './components/LoginPage';
 import DarkModeToggle from './components/DarkModeToggle';
+import TodayTasksPage from './components/TodayTasksPage';
+
+// Helper function to get current date in local timezone
+const getCurrentDate = (): Date => {
+  const now = new Date();
+  // Create a new date using local components to avoid timezone issues
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+};
 
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [currentWeek, setCurrentWeek] = useState(new Date());
+  const [currentWeek, setCurrentWeek] = useState(getCurrentDate());
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [showTodayTasks, setShowTodayTasks] = useState(false);
+  const [todayTasks, setTodayTasks] = useState<Task[]>([]);
 
   // Generate week days
   const generateWeekDays = (weekStart: Date): WeekDay[] => {
-    const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     
     return days.map((day, index) => ({
       name: dayNames[index],
@@ -57,6 +67,8 @@ const App: React.FC = () => {
         setLoading(true);
         const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
         console.log('Loading tasks for user:', user.uid, 'week start:', weekStart);
+        console.log('Current week state:', currentWeek);
+        console.log('Current date:', getCurrentDate());
         const weekTasks = await taskService.getTasksForWeek(weekStart, user.uid);
         console.log('Loaded tasks:', weekTasks.length, 'tasks');
         setTasks(weekTasks);
@@ -69,6 +81,28 @@ const App: React.FC = () => {
 
     loadTasks();
   }, [currentWeek, user]);
+
+  // Load tasks for today's page (always loads current week tasks)
+  useEffect(() => {
+    const loadTodayTasks = async () => {
+      if (!user || !showTodayTasks) {
+        setTodayTasks([]);
+        return;
+      }
+
+      try {
+        const actualCurrentWeek = startOfWeek(getCurrentDate(), { weekStartsOn: 1 });
+        console.log('Loading today tasks for week:', actualCurrentWeek);
+        const currentWeekTasks = await taskService.getTasksForWeek(actualCurrentWeek, user.uid);
+        console.log('Loaded today tasks:', currentWeekTasks.length, 'tasks');
+        setTodayTasks(currentWeekTasks);
+      } catch (error) {
+        console.error('Error loading today tasks:', error);
+      }
+    };
+
+    loadTodayTasks();
+  }, [user, showTodayTasks]);
 
   // Handle drag and drop
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -131,6 +165,19 @@ const App: React.FC = () => {
           )
         );
         
+        // Also update todayTasks if the task belongs to current week
+        const actualCurrentWeek = startOfWeek(getCurrentDate(), { weekStartsOn: 1 });
+        const currentWeekId = actualCurrentWeek.toISOString().split('T')[0];
+        if (task.weekId === currentWeekId) {
+          setTodayTasks(prevTasks =>
+            prevTasks.map(t =>
+              t.id === taskId
+                ? { ...t, day, status: status as Task['status'] }
+                : t
+            )
+          );
+        }
+        
         console.log('Updating task in Firebase...');
         // Update the task in Firebase
         await taskService.updateTaskDay(taskId, day);
@@ -158,31 +205,116 @@ const App: React.FC = () => {
 
     try {
       if (editingTask) {
-        // Update existing task
-        await taskService.updateTask(editingTask.id, taskData);
+        // Update existing task - optimistic update
+        const updatedTask = { ...editingTask, ...taskData };
+        
+        // Update local state immediately
         setTasks(prevTasks =>
           prevTasks.map(task =>
             task.id === editingTask.id
-              ? { ...task, ...taskData }
+              ? updatedTask
               : task
           )
         );
+
+        // Then update in Firebase
+        await taskService.updateTask(editingTask.id, taskData);
       } else {
-        // Add new task
+        // Add new task - optimistic update
         const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
-        const taskId = await taskService.addTask(taskData, user.uid, weekStart);
+        const tempId = `temp-${Date.now()}`; // Temporary ID for optimistic update
         const newTask: Task = {
-          id: taskId,
+          id: tempId,
           ...taskData,
           userId: user.uid,
           weekId: weekStart.toISOString().split('T')[0],
           createdAt: new Date(),
           updatedAt: new Date(),
         };
+
+        // Update local state immediately
         setTasks(prevTasks => [...prevTasks, newTask]);
+
+        // Then create in Firebase
+        const actualTaskId = await taskService.addTask(taskData, user.uid, weekStart);
+        
+        // Replace temporary task with real one
+        const realTask = { ...newTask, id: actualTaskId };
+        setTasks(prevTasks =>
+          prevTasks.map(task =>
+            task.id === tempId ? realTask : task
+          )
+        );
       }
     } catch (error) {
       console.error('Error saving task:', error);
+      // TODO: Add error handling to revert optimistic updates if needed
+    }
+  };
+
+  // Handle form submission from today's page (uses actual current week)
+  const handleSubmitTaskFromToday = async (taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'userId' | 'weekId'>) => {
+    if (!user) return;
+
+    try {
+      if (editingTask) {
+        // Update existing task - optimistic update
+        const updatedTask = { ...editingTask, ...taskData };
+        
+        // Update local state immediately
+        setTasks(prevTasks =>
+          prevTasks.map(task =>
+            task.id === editingTask.id
+              ? updatedTask
+              : task
+          )
+        );
+        setTodayTasks(prevTasks =>
+          prevTasks.map(task =>
+            task.id === editingTask.id
+              ? updatedTask
+              : task
+          )
+        );
+
+        // Then update in Firebase
+        await taskService.updateTask(editingTask.id, taskData);
+      } else {
+        // Add new task - optimistic update
+        const actualCurrentWeek = startOfWeek(getCurrentDate(), { weekStartsOn: 1 });
+        const tempId = `temp-${Date.now()}`; // Temporary ID for optimistic update
+        const newTask: Task = {
+          id: tempId,
+          ...taskData,
+          userId: user.uid,
+          weekId: actualCurrentWeek.toISOString().split('T')[0],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        // Update local state immediately
+        setTasks(prevTasks => [...prevTasks, newTask]);
+        setTodayTasks(prevTasks => [...prevTasks, newTask]);
+
+        // Then create in Firebase
+        const actualTaskId = await taskService.addTask(taskData, user.uid, actualCurrentWeek);
+        
+        // Replace temporary task with real one
+        const realTask = { ...newTask, id: actualTaskId };
+        setTasks(prevTasks =>
+          prevTasks.map(task =>
+            task.id === tempId ? realTask : task
+          )
+        );
+        setTodayTasks(prevTasks =>
+          prevTasks.map(task =>
+            task.id === tempId ? realTask : task
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error saving task:', error);
+      // TODO: Add error handling to revert optimistic updates if needed
     }
   };
 
@@ -191,6 +323,7 @@ const App: React.FC = () => {
     try {
       await taskService.deleteTask(taskId);
       setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+      setTodayTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
     } catch (error) {
       console.error('Error deleting task:', error);
     }
@@ -253,6 +386,19 @@ const App: React.FC = () => {
     return <LoginPage onLogin={() => {}} />;
   }
 
+  // Show today's tasks page
+  if (showTodayTasks) {
+    return (
+      <TodayTasksPage
+        tasks={todayTasks}
+        onDeleteTask={handleDeleteTask}
+        onBack={() => setShowTodayTasks(false)}
+        onSubmitTask={handleSubmitTaskFromToday}
+        onDragEnd={handleDragEnd}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
@@ -290,6 +436,17 @@ const App: React.FC = () => {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Today's Tasks Button */}
+        <div className="mb-4 md:mb-6">
+          <button
+            onClick={() => setShowTodayTasks(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm md:text-base"
+          >
+            <Calendar size={16} />
+            Check Today's Tasks
+          </button>
         </div>
 
         {/* Week Navigation */}

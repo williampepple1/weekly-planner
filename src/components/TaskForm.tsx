@@ -7,9 +7,10 @@ interface TaskFormProps {
   onClose: () => void;
   onSubmit: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'userId' | 'weekId'>) => void;
   task?: Task | null;
+  hideDayField?: boolean;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ isOpen, onClose, onSubmit, task }) => {
+const TaskForm: React.FC<TaskFormProps> = ({ isOpen, onClose, onSubmit, task, hideDayField = false }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -93,25 +94,27 @@ const TaskForm: React.FC<TaskFormProps> = ({ isOpen, onClose, onSubmit, task }) 
             />
           </div>
 
-          <div>
-            <label htmlFor="day" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Day
-            </label>
-            <select
-              id="day"
-              value={formData.day}
-              onChange={(e) => setFormData({ ...formData, day: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            >
-              <option value="monday">Monday</option>
-              <option value="tuesday">Tuesday</option>
-              <option value="wednesday">Wednesday</option>
-              <option value="thursday">Thursday</option>
-              <option value="friday">Friday</option>
-              <option value="saturday">Saturday</option>
-              <option value="sunday">Sunday</option>
-            </select>
-          </div>
+          {!hideDayField && (
+            <div>
+              <label htmlFor="day" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Day
+              </label>
+              <select
+                id="day"
+                value={formData.day}
+                onChange={(e) => setFormData({ ...formData, day: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="monday">Monday</option>
+                <option value="tuesday">Tuesday</option>
+                <option value="wednesday">Wednesday</option>
+                <option value="thursday">Thursday</option>
+                <option value="friday">Friday</option>
+                <option value="saturday">Saturday</option>
+                <option value="sunday">Sunday</option>
+              </select>
+            </div>
+          )}
 
           <div>
             <label htmlFor="priority" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
