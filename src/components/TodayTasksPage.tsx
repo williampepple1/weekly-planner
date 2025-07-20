@@ -133,30 +133,30 @@ const TodayTasksPage: React.FC<TodayTasksPageProps> = ({
     
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div className="p-3 md:p-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white">
             {title}
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
             {tasks.length} tasks
           </p>
         </div>
         <div 
           ref={setNodeRef}
-          className={`p-4 min-h-[200px] transition-colors ${
+          className={`p-3 md:p-4 min-h-[120px] md:min-h-[200px] transition-colors ${
             isOver 
               ? 'bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-600' 
               : ''
           }`}
         >
           {tasks.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
+            <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm text-center py-3 md:py-4">
               {title === 'To Do' && 'No tasks to do'}
               {title === 'In Progress' && 'No tasks in progress'}
               {title === 'Completed' && 'No completed tasks'}
             </p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 md:space-y-3">
               {tasks.map((task) => (
                 <TaskCard
                   key={task.id}
@@ -184,25 +184,25 @@ const TodayTasksPage: React.FC<TodayTasksPageProps> = ({
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <div className="max-w-4xl mx-auto px-4 py-4 md:py-8">
           {/* Header */}
-          <div className="mb-6">
+          <div className="mb-4 md:mb-6">
             <button
               onClick={onBack}
               className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors mb-4"
             >
               <ArrowLeft size={20} />
-              <span>Back to Weekly View</span>
+              <span className="text-sm md:text-base">Back to Weekly View</span>
             </button>
             
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
               <div className="flex items-center gap-3">
                 <div className="bg-primary-600 p-2 rounded-lg">
-                  <Calendar className="h-6 w-6 text-white" />
+                  <Calendar className="h-5 w-5 md:h-6 md:w-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
                     Today's Tasks
                   </h1>
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">
                     {todayName}, {todayDate}
                   </p>
                 </div>
@@ -210,7 +210,7 @@ const TodayTasksPage: React.FC<TodayTasksPageProps> = ({
               
               <button
                 onClick={handleAddTask}
-                className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm md:text-base"
+                className="flex items-center justify-center gap-2 px-3 md:px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm md:text-base w-full sm:w-auto"
               >
                 <Plus size={16} />
                 Add Task
@@ -218,7 +218,7 @@ const TodayTasksPage: React.FC<TodayTasksPageProps> = ({
             </div>
 
             {/* Progress Summary */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-3 md:p-4 border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Progress
@@ -240,7 +240,7 @@ const TodayTasksPage: React.FC<TodayTasksPageProps> = ({
           </div>
 
           {/* Tasks by Status */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             <DroppableZone
               id={`${todayName.toLowerCase()}-todo`}
               title="To Do"
@@ -260,19 +260,19 @@ const TodayTasksPage: React.FC<TodayTasksPageProps> = ({
 
           {/* Empty State */}
           {totalTasks === 0 && (
-            <div className="text-center py-12">
-              <div className="bg-gray-100 dark:bg-gray-800 rounded-full p-4 w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                <Calendar className="h-8 w-8 text-gray-400" />
+            <div className="text-center py-8 md:py-12">
+              <div className="bg-gray-100 dark:bg-gray-800 rounded-full p-3 md:p-4 w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 flex items-center justify-center">
+                <Calendar className="h-6 w-6 md:h-8 md:w-8 text-gray-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <h3 className="text-base md:text-lg font-medium text-gray-900 dark:text-white mb-2">
                 No tasks for today
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mb-4">
                 You're all caught up! Add some tasks to get started.
               </p>
               <button
                 onClick={handleAddTask}
-                className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors mx-auto"
+                className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors mx-auto text-sm md:text-base"
               >
                 <Plus size={16} />
                 Add Your First Task
