@@ -26,13 +26,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
   const getPriorityColor = (priority: Task['priority']) => {
     switch (priority) {
       case 'high':
-        return 'border-red-500 bg-red-50';
+        return 'border-red-500 bg-red-50 dark:bg-red-900/20';
       case 'medium':
-        return 'border-yellow-500 bg-yellow-50';
+        return 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20';
       case 'low':
-        return 'border-green-500 bg-green-50';
+        return 'border-green-500 bg-green-50 dark:bg-green-900/20';
       default:
-        return 'border-gray-300 bg-gray-50';
+        return 'border-gray-300 bg-gray-50 dark:bg-gray-700';
     }
   };
 
@@ -48,9 +48,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
     >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 mb-1 text-sm md:text-base whitespace-normal leading-tight">{task.title}</h3>
+          <h3 className="font-semibold text-gray-900 dark:text-white mb-1 text-sm md:text-base whitespace-normal leading-tight">{task.title}</h3>
           {task.description && (
-            <p className="text-xs md:text-sm text-gray-600 mb-2 whitespace-normal leading-relaxed">{task.description}</p>
+            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mb-2 whitespace-normal leading-relaxed">{task.description}</p>
           )}
         </div>
         <div className="flex items-center gap-1 ml-2">
@@ -59,7 +59,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
               e.stopPropagation();
               onEdit(task);
             }}
-            className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+            className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             title="Edit task"
           >
             <Edit size={16} />
@@ -69,7 +69,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
               e.stopPropagation();
               onDelete(task.id);
             }}
-            className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+            className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
             title="Delete task"
           >
             <Trash2 size={16} />

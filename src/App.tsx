@@ -9,6 +9,7 @@ import type { User as FirebaseUser } from 'firebase/auth';
 import TaskForm from './components/TaskForm';
 import WeekView from './components/WeekView';
 import LoginPage from './components/LoginPage';
+import DarkModeToggle from './components/DarkModeToggle';
 
 const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -238,10 +239,10 @@ const App: React.FC = () => {
   // Show loading screen while checking authentication
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
         </div>
       </div>
     );
@@ -253,22 +254,23 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 py-4 md:py-8">
         {/* Header */}
         <div className="mb-4 md:mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Weekly Planner</h1>
-              <p className="text-sm md:text-base text-gray-600">Organize your tasks for the week</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">Weekly Planner</h1>
+              <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">Organize your tasks for the week</p>
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <DarkModeToggle />
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 {user.photoURL ? (
                   <img
                     src={user.photoURL}
                     alt={user.displayName || user.email || 'User'}
-                    className="w-8 h-8 rounded-full border-2 border-gray-200"
+                    className="w-8 h-8 rounded-full border-2 border-gray-200 dark:border-gray-600"
                     title={user.displayName || user.email || 'User'}
                   />
                 ) : (
@@ -280,7 +282,7 @@ const App: React.FC = () => {
               </div>
               <button
                 onClick={handleSignOut}
-                className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
                 title="Sign out"
               >
                 <LogOut size={16} />
@@ -295,16 +297,16 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2 md:gap-4">
             <button
               onClick={goToPreviousWeek}
-              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
               <ChevronLeft size={20} />
             </button>
-            <h2 className="text-lg md:text-xl font-semibold text-gray-900 text-center">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white text-center">
               {format(startOfWeek(currentWeek, { weekStartsOn: 1 }), 'MMM d')} - {format(addDays(startOfWeek(currentWeek, { weekStartsOn: 1 }), 6), 'MMM d, yyyy')}
             </h2>
             <button
               onClick={goToNextWeek}
-              className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
               <ChevronRight size={20} />
             </button>
@@ -322,7 +324,7 @@ const App: React.FC = () => {
         {/* Week View */}
         {loading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="text-gray-500">Loading tasks...</div>
+            <div className="text-gray-500 dark:text-gray-400">Loading tasks...</div>
           </div>
         ) : (
           <WeekView

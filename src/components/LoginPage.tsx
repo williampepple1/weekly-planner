@@ -25,7 +25,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8">
@@ -34,28 +34,28 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               <Calendar className="h-8 w-8 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Weekly Planner</h1>
-          <p className="text-gray-600">Organize your tasks for the week</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Weekly Planner</h1>
+          <p className="text-gray-600 dark:text-gray-400">Organize your tasks for the week</p>
         </div>
 
         {/* Login Card */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 md:p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 md:p-8">
           <div className="text-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Welcome</h2>
-            <p className="text-gray-600">Sign in to access your weekly planner</p>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Welcome</h2>
+            <p className="text-gray-600 dark:text-gray-400">Sign in to access your weekly planner</p>
           </div>
 
           {/* Features */}
           <div className="mb-6 space-y-3">
-            <div className="flex items-center gap-3 text-sm text-gray-600">
+            <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
               <CheckSquare className="h-4 w-4 text-green-500 flex-shrink-0" />
               <span>Create and organize tasks by day</span>
             </div>
-            <div className="flex items-center gap-3 text-sm text-gray-600">
+            <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
               <CheckSquare className="h-4 w-4 text-green-500 flex-shrink-0" />
               <span>Drag and drop to update progress</span>
             </div>
-            <div className="flex items-center gap-3 text-sm text-gray-600">
+            <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
               <CheckSquare className="h-4 w-4 text-green-500 flex-shrink-0" />
               <span>Sync across all your devices</span>
             </div>
@@ -65,10 +65,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
           <button
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-700"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-700 dark:border-gray-300"></div>
             ) : (
               <svg className="h-5 w-5" viewBox="0 0 24 24">
                 <path
@@ -96,14 +96,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
           {/* Error Message */}
           {error && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
           )}
 
           {/* Privacy Notice */}
           <div className="mt-6 text-center">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               By signing in, you agree to our Terms of Service and Privacy Policy
             </p>
           </div>

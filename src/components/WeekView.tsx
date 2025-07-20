@@ -49,11 +49,13 @@ const WeekView: React.FC<WeekViewProps> = ({
     
     return (
       <div>
-        <h4 className="text-xs md:text-sm font-medium text-gray-700 mb-2">{title}</h4>
+        <h4 className="text-xs md:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{title}</h4>
         <div 
           ref={setNodeRef}
           className={`min-h-[80px] md:min-h-[100px] p-2 rounded-md transition-colors ${
-            isOver ? 'bg-blue-100 border-2 border-blue-300' : 'bg-gray-50 border-2 border-dashed border-gray-300'
+            isOver 
+              ? 'bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-300 dark:border-blue-600' 
+              : 'bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600'
           }`}
         >
           {tasks.map((task) => (
@@ -110,10 +112,10 @@ const WeekView: React.FC<WeekViewProps> = ({
           const dayTasks = getDayTasksByStatus(day.value);
           
           return (
-            <div key={day.value} className="bg-white rounded-lg shadow-sm border">
-              <div className="p-3 md:p-4 border-b bg-gray-50">
-                <h3 className="font-semibold text-gray-900 text-sm md:text-base">{day.name}</h3>
-                <p className="text-xs md:text-sm text-gray-500">{format(day.date, 'MMM d')}</p>
+            <div key={day.value} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="p-3 md:p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+                <h3 className="font-semibold text-gray-900 dark:text-white text-sm md:text-base">{day.name}</h3>
+                <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">{format(day.date, 'MMM d')}</p>
               </div>
               
               <div className="p-3 md:p-4 space-y-3 md:space-y-4">
